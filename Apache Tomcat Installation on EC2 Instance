@@ -1,0 +1,50 @@
+Apache Tomcat installation on EC2 instance 
+Pre-requisites
+EC2 instance with Java v1.8.x
+Install Apache Tomcat
+Download tomcat packages from https://tomcat.apache.org/download-80.cgi onto /opt on EC2 instance
+# Create tomcat directory
+cd /opt
+wget http://mirrors.fibergrid.in/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz
+tar -xvzf /opt/apache-tomcat-<version>.tar.gz
+Rename the apache-tomcat-<version> with the MV command 
+mv apache-tomcat-<version> and new name (tomcat) 
+Cd into the new name <tomcat> 
+ls go to bin directory using cd /bin or cd bin (bin=binary)
+give executing permissions to startup.sh and shutdown.sh which are under bin.
+
+Check point :
+Use the public IP address and add the 8080 to access tomcat application from browser also don't forget to open port 8080 when creating security group
+
+http://<Public_IP>:8080
+Using unique ports for each application is a best practice in an environment. But tomcat and Jenkins runs on ports number 8080. However, you can change tomcat port number to 8090. 
+to change port number go to conf/server.xml file under tomcat home
+
+cd /opt/apache-tomcat-<version>/conf
+# update port number in the "connecter port" field in server.xml
+# restart tomcat after configuration update
+Check point :
+Access tomcat application from browser on port 8080
+http://<Public_IP>:8080
+now application is accessible on port 8080. but tomcat application doesnt allow to login from browser. 
+Changing a default parameter in context.xml does address this issue
+#search for context.xml
+find / -name context.xml
+above command gives 3 context.xml files. comment () Value ClassName field on files which are under webapp directory. After that restart tomcat services to effect these changes. At the time of writing this lecture below 2 files are updated.
+/opt/tomcat/webapps/host-manager/META-INF/context.xml
+/opt/tomcat/webapps/manager/META-INF/context.xml
+Note: Use the find /-name context.xml edit the last two files above. Use vi and the file name since will need to access the tomcat from outside as well comment the place
+you see <’value class name’ and stop at the point you see IP address number  /> 
+Note: To comment the above line out use. <!-- and at the end use -->
+
+# Restart tomcat services
+Shut down and start tomcat again this time it should ask you for username and password 
+Update users information in the tomcat-users.xml file goto tomcat home directory and Add below users to conf/tomcat-users.xml file
+ <role rolename="manager-gui"/>
+ <role rolename="manager-script"/>
+ <role rolename="manager-jmx"/>
+ <role rolename="manager-status"/>
+ <user username="admin" password="admin123" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+ <user username="deployer" password="deployer1" roles="manager-script"/>
+ <user username="tomcat" password="private" roles="manager-gui"/>
+ Shut down and start the tomcat again enter the user and password. This time it should be Successful.
